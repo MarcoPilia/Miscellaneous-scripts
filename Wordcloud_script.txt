@@ -1,0 +1,36 @@
+#=================================== Wordcloud ===================================
+
+#package request (it's overkill, you won't need all of these)
+require(twitteR)
+require(RCurl)
+require(tm)
+require(wordcloud)
+require(stringr)
+require(tidytext)
+require(dplyr)
+require(ggplot2)
+
+#retrieve the tweets with the selected hashtag
+Tweet_Vegan <- searchTwitter("#vegan",n=10000,lang="en")
+
+vegan_text <- sapply(Tweet_Vegan, function(x) x$getText())
+str(text)
+
+vegan_text <- as.vector(Tweet_Vegan$text)
+vegan_text <- as.character(vegan_text)
+
+#Create a corpus for easier cleaning
+vegan_corpus <- Corpus(VectorSource(vegan_text))
+
+#tm_map function to clean unwanted character or spaces
+vegan_clean <- tm_map(vegan_corpus, removePunctuation)
+vegan_clean <- tm_map(vegan_clean, content_transformer(tolower))
+vegan_clean <- tm_map(vegan_clean, removeWords, stopwords("english"))
+vegan_clean <- tm_map(vegan_clean, removeNumbers)
+vegan_clean <- tm_map(vegan_clean, stripWhitespace)
+
+#to make the analysis more accurate, let's remove related words!
+vegan_clean <- tm_map(vegan_clean, removeWords, c("vegan", "veganism"))
+
+#wordcloud :D
+wordcloud(vegan_clean)
